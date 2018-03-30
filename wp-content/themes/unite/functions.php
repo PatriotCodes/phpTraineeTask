@@ -92,7 +92,7 @@ if ( ! function_exists( 'movies_post' ) ) {
  
         $labels = array(
             'name'                => _x( 'Фильмы', 'Post Type General Name', 'movies' ),
-            'singular_name'       => _x( 'Фильмы', 'Post Type Singular Name', 'movies' ),
+            'singular_name'       => _x( 'Фильм', 'Post Type Singular Name', 'movies' ),
             'menu_name'           => __( 'Фильмы', 'movies' ),
             'parent_item_colon'   => __( 'Родительский:', 'movies' ),
             'all_items'           => __( 'Все записи', 'movies' ),
@@ -129,7 +129,7 @@ if ( ! function_exists( 'movies_tax' ) ) {
  
         $labels = array(
             'name'                       => _x( 'Категории Фильмов', 'Taxonomy General Name', 'movies' ),
-            'singular_name'              => _x( 'Категория Фильмов', 'Taxonomy Singular Name', 'movies' ),
+            'singular_name'              => _x( 'Категория Фильма', 'Taxonomy Singular Name', 'movies' ),
             'menu_name'                  => __( 'Категории', 'movies' ),
             'all_items'                  => __( 'Категории', 'movies' ),
             'parent_item'                => __( 'Родительская категория Фильмов', 'movies' ),
@@ -155,6 +155,93 @@ if ( ! function_exists( 'movies_tax' ) ) {
     add_action( 'init', 'movies_tax', 0 ); // инициализируем
  
 }
+
+function movies_meta_box() {  
+    add_meta_box(  
+        'movies_meta_box', // Идентификатор(id)
+        'Фильмы - дополнительная информация', // Заголовок области с мета-полями(title)
+        'show_my_movies_metabox', // Вызов(callback)
+        'movies', // Где будет отображаться наше поле, в нашем случае в разделе Красная Книга
+        'normal',
+        'high');
+}  
+add_action('add_meta_boxes', 'movies_meta_box'); // Запускаем функцию
+
+$movies_meta_fields = array(
+    array(  
+        'label' => 'Стоимость сеанса',  
+        'desc'  => '',  
+        'id'    => 'order', // даем идентификатор.
+        'type'  => 'text'  // Указываем тип поля.
+    ),  
+    array(  
+        'label' => 'Дата выхода',  
+        'desc'  => '',  
+        'id'    => 'kind',  // даем идентификатор.
+        'type'  => 'date'  // Указываем тип поля.
+    )
+);
+
+function show_my_movies_metabox() {  
+global $movies_meta_fields; // Обозначим наш массив с полями глобальным
+global $post;  // Глобальный $post для получения id создаваемого/редактируемого поста
+// Выводим скрытый input, для верификации. Безопасность прежде всего!
+echo '<input type="hidden" name="custom_meta_box_nonce" value="'.wp_create_nonce(basename(__FILE__)).'" />';  
+ 
+    // Начинаем выводить таблицу с полями через цикл
+    echo '<table class="form-table">';  
+    foreach ($movies_meta_fields as $field) {  
+        // Получаем значение если оно есть для этого поля
+        $meta = get_post_meta($post->ID, $field['id'], true);  
+        // Начинаем выводить таблицу
+        echo '<tr>
+                <th><label for="'.$field['id'].'">'.$field['label'].'</label></th>
+                <td>';  
+                switch($field['type']) {  
+                    // Текстовое поле
+					case 'text':  
+					    echo '<input type="text" name="'.$field['id'].'" id="'.$field['id'].'" value="'.$meta.'" size="30" />
+					        <br /><span class="description">'.$field['desc'].'</span>';  
+					break;
+					case 'date':
+						echo '<input type="date" name="'.$field['id'].'" id="'.$field['id'].'" value="'.$meta.'" size="30" />
+					        <br /><span class="description">'.$field['desc'].'</span>';  
+					break;
+                }
+        echo '</td></tr>';  
+    }  
+    echo '</table>';
+}
+
+function save_my_movies_meta_fields($post_id) {  
+    global $movies_meta_fields;  // Массив с нашими полями
+ 
+    // проверяем наш проверочный код
+    if (!wp_verify_nonce($_POST['custom_meta_box_nonce'], basename(__FILE__)))  
+        return $post_id;  
+    // Проверяем авто-сохранение
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)  
+        return $post_id;  
+    // Проверяем права доступа  
+    if ('movies' == $_POST['post_type']) {  
+        if (!current_user_can('edit_page', $post_id))  
+            return $post_id;  
+        } elseif (!current_user_can('edit_post', $post_id)) {  
+            return $post_id;  
+    }  
+ 
+    // Если все отлично, прогоняем массив через foreach
+    foreach ($movies_meta_fields as $field) {  
+        $old = get_post_meta($post_id, $field['id'], true); // Получаем старые данные (если они есть), для сверки
+        $new = $_POST[$field['id']];  
+        if ($new && $new != $old) {  // Если данные новые
+            update_post_meta($post_id, $field['id'], $new); // Обновляем данные
+        } elseif ('' == $new && $old) {  
+            delete_post_meta($post_id, $field['id'], $old); // Если данных нету, удаляем мету.
+        }  
+    } // end foreach  
+}  
+add_action('save_post', 'save_my_movies_meta_fields'); // Запускаем функцию сохранения
 
 if ( ! function_exists( 'unite_widgets_init' ) ) :
 /**
