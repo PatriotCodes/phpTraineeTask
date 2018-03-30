@@ -85,6 +85,76 @@ function unite_setup() {
 endif; // unite_setup
 add_action( 'after_setup_theme', 'unite_setup' );
 
+if ( ! function_exists( 'movies_post' ) ) {
+ 
+// Опишем требуемый функционал
+    function movies_post() {
+ 
+        $labels = array(
+            'name'                => _x( 'Фильмы', 'Post Type General Name', 'movies' ),
+            'singular_name'       => _x( 'Фильмы', 'Post Type Singular Name', 'movies' ),
+            'menu_name'           => __( 'Фильмы', 'movies' ),
+            'parent_item_colon'   => __( 'Родительский:', 'movies' ),
+            'all_items'           => __( 'Все записи', 'movies' ),
+            'view_item'           => __( 'Просмотреть', 'movies' ),
+            'add_new_item'        => __( 'Добавить новую запись в Фильмы', 'movies' ),
+            'add_new'             => __( 'Добавить новую', 'movies' ),
+            'edit_item'           => __( 'Редактировать запись', 'movies' ),
+			'menu_icon'           => __( 'dashicons-format-video', 'movies' ),
+            'update_item'         => __( 'Обновить запись', 'movies' ),
+            'search_items'        => __( 'Найти запись', 'movies' ),
+            'not_found'           => __( 'Не найдено', 'movies' ),
+            'not_found_in_trash'  => __( 'Не найдено в корзине', 'movies' ),
+        );
+        $args = array(
+            'labels'              => $labels,
+            'supports'            => array( 'title', 'editor', 'excerpt', 'thumbnail'),
+            'taxonomies'          => array( 'movies_tax' ), // категории, которые мы создадим ниже
+            'public'              => true,
+            'menu_position'       => 5,
+            'menu_icon'           => 'dashicons-book',
+        );
+        register_post_type( 'movies', $args );
+ 
+    }
+ 
+    add_action( 'init', 'movies_post', 0 ); // инициализируем
+ 
+}
+
+if ( ! function_exists( 'movies_tax' ) ) {
+ 
+// Опишем требуемый функционал
+    function movies_tax() {
+ 
+        $labels = array(
+            'name'                       => _x( 'Категории Фильмов', 'Taxonomy General Name', 'movies' ),
+            'singular_name'              => _x( 'Категория Фильмов', 'Taxonomy Singular Name', 'movies' ),
+            'menu_name'                  => __( 'Категории', 'movies' ),
+            'all_items'                  => __( 'Категории', 'movies' ),
+            'parent_item'                => __( 'Родительская категория Фильмов', 'movies' ),
+            'parent_item_colon'          => __( 'Родительская категория Фильмов:', 'movies' ),
+            'new_item_name'              => __( 'Новая категория', 'movies' ),
+            'add_new_item'               => __( 'Добавить новую категорию', 'movies' ),
+            'edit_item'                  => __( 'Редактировать категорию', 'movies' ),
+            'update_item'                => __( 'Обновить категорию', 'movies' ),
+            'search_items'               => __( 'Найти', 'movies' ),
+            'add_or_remove_items'        => __( 'Добавить или удалить категорию', 'movies' ),
+            'choose_from_most_used'      => __( 'Поиск среди популярных', 'movies' ),
+            'not_found'                  => __( 'Не найдено', 'movies' ),
+        );
+        $args = array(
+            'labels'                     => $labels,
+            'hierarchical'               => true,
+            'public'                     => true,
+        );
+        register_taxonomy( 'movies_tax', array( 'movies' ), $args );
+ 
+    }
+ 
+    add_action( 'init', 'movies_tax', 0 ); // инициализируем
+ 
+}
 
 if ( ! function_exists( 'unite_widgets_init' ) ) :
 /**
