@@ -243,6 +243,27 @@ function save_my_movies_meta_fields($post_id) {
 }  
 add_action('save_post', 'save_my_movies_meta_fields'); // Запускаем функцию сохранения
 
+function last5movies() {
+	$movies_args = array(
+  		'numberposts' => 5,
+  		'post_type'   => 'movies'
+	);
+	$latest_movies = get_posts( $movies_args );
+	foreach($latest_movies as $post) {
+		setup_postdata($post);
+		echo '<h2><a href="';
+		echo get_permalink($post->ID);
+		echo '">';
+		echo get_the_title($post->ID);
+		echo '</a></h2>';
+        echo the_content();
+	}
+    wp_reset_postdata($post);
+}
+
+// SHORT CODE:
+add_shortcode( 'movies_last', 'last5movies' );
+
 if ( ! function_exists( 'unite_widgets_init' ) ) :
 /**
  * Register widgetized area and update sidebar with default widgets.
