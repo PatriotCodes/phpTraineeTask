@@ -8,6 +8,7 @@ Author: Александр Трюхан
 //movies_tax
 
 add_action("the_content", "movie_info_display");
+add_filter( 'the_title', 'custom_title', 10, 2 );
 function movie_info_display($content)
 {
 	if (is_single()) {
@@ -15,8 +16,13 @@ function movie_info_display($content)
 		$taxs = get_the_terms(get_the_ID(),'movies_tax');
 		$countries = array();
 		$actors = array();
+		$genres = array();
+		$info;
 		foreach ($taxs as $tax) {
 			$parentID = $tax->parent;
+			if ($parentID == 2) {
+				array_push($genres,$tax->name);
+			}
 			if ($parentID == 3) {
 				array_push($countries,$tax->name);
 			}
@@ -24,26 +30,47 @@ function movie_info_display($content)
 				array_push($actors,$tax->name);
 			}
 		}
-		echo "<p><b>Страна: </b>";
+		$info = $info."<p><b>Страна: </b>";
 		foreach ($countries as $country) {
-			echo $country;
+			$info = $info.$country;
 			if ($country !== end($countries)) {
-				echo ", ";
+				$info = $info.", ";
 			}
 		}
-		echo "</p>";
-		echo "<p><b>Актеры: </b>";
+		$info = $info."</p>";
+		$info = $info."<p><b>Актеры: </b>";
 		foreach ($actors as $actor) {
-			echo $actor;
+			$info = $info.$actor;
 			if ($actor !== end($actors)) {
-				echo ", ";
+				$info = $info.", ";
 			}
 		}
-		echo "</p>";
-		$info = "<p><b>Стоимость: </b>".$custom['order'][0]."</p><p><b>Дата выхода: </b>".$custom['kind'][0]."</p>";
+		$info = $info."</p>";
+		$info = $info."<p><b>Жанр: </b>";
+		foreach ($genres as $genre) {
+			$info = $info.$genre;
+			if ($genre !== end($genres)) {
+				$info = $info.", ";
+			}
+		}
+		$info = $info."</p>";
 		return $content . $info;
 	} else {
 		return $content;
+	}
+}
+
+function custom_title($title, $post_id) {
+	if ($post_id != null) {
+		$custom = get_post_meta($post_id);
+		if ($custom['order'][0] != null && $custom['kind'][0] != null) {
+			$info = "<p><h5><span class='glyphicon glyphicon-tag'></span>  <span class='label label-info'>".$custom['order'][0]."</span></h5></p><p><h5><span class='glyphicon glyphicon-calendar'></span>  <span class='label label-info'>".$custom['kind'][0]."</span></h5></p>";
+			return $title.$info;
+		} else {
+			return $title;
+		}
+	} else {
+		return $title;
 	}
 }
 ?>

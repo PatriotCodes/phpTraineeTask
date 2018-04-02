@@ -283,6 +283,7 @@ function grid2x2() {
 		echo get_the_title($post->ID);
 		echo '</a></h2>';
         echo the_content();
+		echo "</p>";
 		echo '</div>';
 		$post_num++;
 	}
