@@ -30,7 +30,7 @@ function movie_info_display($content)
 				array_push($actors,$tax->name);
 			}
 		}
-		$info = $info."<p><b>Страна: </b>";
+		$info = $info."<p><b><span class='glyphicon glyphicon-flag'></span>   </b>";
 		foreach ($countries as $country) {
 			$info = $info.$country;
 			if ($country !== end($countries)) {
@@ -38,7 +38,7 @@ function movie_info_display($content)
 			}
 		}
 		$info = $info."</p>";
-		$info = $info."<p><b>Актеры: </b>";
+		$info = $info."<p><b><span class='glyphicon glyphicon-sunglasses'></span>   </b>";
 		foreach ($actors as $actor) {
 			$info = $info.$actor;
 			if ($actor !== end($actors)) {
@@ -46,7 +46,7 @@ function movie_info_display($content)
 			}
 		}
 		$info = $info."</p>";
-		$info = $info."<p><b>Жанр: </b>";
+		$info = $info."<p><b><span class='glyphicon glyphicon-eye-open'></span>   </b>";
 		foreach ($genres as $genre) {
 			$info = $info.$genre;
 			if ($genre !== end($genres)) {
