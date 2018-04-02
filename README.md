@@ -1,4 +1,4 @@
 # phpTraineeTask
 
-admin login: admin
-password: phpTrain
+admin login: admin<br/>
+password: phpTrain<br/>
