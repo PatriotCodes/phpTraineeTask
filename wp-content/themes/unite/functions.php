@@ -261,8 +261,39 @@ function last5movies() {
     wp_reset_postdata($post);
 }
 
+function grid2x2() {
+	$movies_args = array(
+  		'numberposts' => 4,
+  		'post_type'   => 'movies'
+	);
+	$latest_movies = get_posts( $movies_args );
+	echo '<div>';
+	echo '<div class="row">';
+	$post_num = 0;
+	foreach($latest_movies as $post) {
+		if ($post_num % 2 == 0) {
+			echo '</div>';
+			echo '<div class="row">';
+		}
+		echo '<div class="col-md-6">';
+		setup_postdata($post);
+		echo '<h2><a href="';
+		echo get_permalink($post->ID);
+		echo '">';
+		echo get_the_title($post->ID);
+		echo '</a></h2>';
+        echo the_content();
+		echo '</div>';
+		$post_num++;
+	}
+	echo '</div>';
+	echo '</div>';
+    wp_reset_postdata($post);
+}
+
 // SHORT CODE:
 add_shortcode( 'movies_last', 'last5movies' );
+add_shortcode( 'grid2x2', 'grid2x2' );
 
 if ( ! function_exists( 'unite_widgets_init' ) ) :
 /**
